@@ -166,7 +166,8 @@ bool SimpleeqAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SimpleeqAudioProcessor::createEditor()
 {
-    return new SimpleeqAudioProcessorEditor (*this);
+    // return new SimpleeqAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -181,6 +182,31 @@ void SimpleeqAudioProcessor::setStateInformation (const void* data, int sizeInBy
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout SimpleeqAudioProcessor::createParameterLayout()
+{
+    //3 bands - low high parametric peak
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+    
+    layout.add(std::make_unique<juce::AudioParameterFloat>("lowcut freq", "lowcut freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("highcut freq", "highcut freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 2000.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("peak freq", "peak freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 750.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("peak gain", "peak gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 1.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("peak gain", "peak gain", juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f), 1.f));
+    
+    juce::StringArray stringArray;
+    for (int i = 0; i < 4; ++i) {
+        juce::String str;
+        str << (12 + i * 12);
+        str << " db/Oct";
+        stringArray.add(str);
+    }
+
+    layout.add(std::make_unique<juce::AudioParameterChoice>("lowcut slope", "lowcut slope", stringArray, 0));
+    layout.add(std::make_unique<juce::AudioParameterChoice>("highcut slope", "highcut slope", stringArray, 0));
+    return layout;
 }
 
 //==============================================================================
